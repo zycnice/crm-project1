@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/static/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+    <link th:href="@{/static/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css}" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" th:src="@{/static/jquery/jquery-1.11.1-min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js}"></script>
+    <script type="text/javascript" th:src="@{/static/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js}"></script>
+    <title>演示bs_datetimepicker日历插件</title>
+    <script th:type="text/javascript" th:inline="javascript">
+        /**
+         * 日历插件  容器加载完后，对容器调用工具函数
+         */
+        $(function(){
+            $("#mydate").datetimepicker({
+                language:'zh-CN',//语言
+                format:'yyyy-mm-dd',//日期的格式
+                minView:'month',	//可选择的最小视图
+                initData:new Date(),	//初始化显示的时间
+                autoclose:true,		//选择完自动关闭
+                todayBtn:true,		//显示今天的按钮
+                clearBtn:true		//显示清空按钮，但是是英文，改中文要在框架中修改
+            });
+        });
+    </script>
+</head>
+<body>
+<input type="text" id="myDate">
+</body>
+</html>
