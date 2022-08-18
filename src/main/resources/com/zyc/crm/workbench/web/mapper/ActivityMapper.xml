@@ -203,4 +203,104 @@
     #{createTime,jdbcType=CHAR}, #{createBy,jdbcType=VARCHAR})
   </insert>
 
+  <!--List<Activity> selectActivityByConditionForPage(Map<String,Object> map);-->
+  <!-- 大于号转义符 &gt; 小于号转义符 &lt; -->
+  <select id="selectActivityByConditionForPage" parameterType="map" resultMap="BaseResultMap">
+    select a.id,u1.name as owner,a.name, a.start_date,a.end_date,a.cost,a.description,a.create_time,
+    u2.name as create_by,a.edit_time,u3.name as edit_by
+    from tbl_activity a
+    join tbl_user u1 on a.owner=u1.id
+    join tbl_user u2 on a.create_by=u2.id
+    left join tbl_user u3 on a.edit_by=u3.id
+    <where>
+      <if test="name!=null and name!=''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate!=null and startDate!=''">
+        and a.start_date &gt;= #{startDate}
+      </if>
+      <if test="endDate!=null and endDate!=''">
+        and a.end_date &lt;= #{endDate}
+      </if>
+    </where>
+    order by a.create_time desc
+    limit #{beginNo}, #{pageSize}
+  </select>
+
+<!--  int selectCountOfActivityByCondition(Map<String,Object> map);-->
+  <select id="selectCountOfActivityByCondition" parameterType="map" resultType="int">
+    SELECT count(*)
+    FROM tbl_activity a
+    JOIN tbl_user u1 ON a.owner=u1.id
+    JOIN tbl_user u2 ON a.create_by=u2.id
+    LEFT JOIN tbl_user u3 ON a.edit_by=u3.id
+    <where>
+      <if test="name != null and name != ''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner != null and owner != ''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate != null and startDate != ''">
+        and a.start_date&gt;=#{startDate}
+      </if>
+      <if test="endDate != null and endDate != ''">
+        and a.end_date&lt;=#{startDate}
+      </if>
+    </where>
+  </select>
+
+<!--  &lt;!&ndash;   int deleteActivityByIds(String[] ids);-->
+<!--  &#45;&#45; 循环，从array中取出值放到id中,进行拼接separator=","每个间隔一个逗号分隔符-->
+<!--    &#45;&#45;开始一个左括号open="(" 结束一个右括号close=")"&ndash;&gt;-->
+  <delete id="deleteActivityByIds" parameterType="string">
+    delete from tbl_activity where id in
+    <foreach collection="array" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+  <!-- Activity selectActivityById(String id); -->
+  <select id="selectActivityById" parameterType="string" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"></include>
+    from tbl_activity
+    where id = #{id}
+  </select>
+
+  <!--  int updateActivity(Activity activity);-->
+  <update id="updateActivity" parameterType="Activity">
+    update tbl_activity
+    set owner=#{owner},name=#{name},start_date=#{startDate},end_date=#{endDate},cost=#{cost},description=#{description},
+        edit_time=#{editTime},edit_by=#{editBy}
+    where id = #{id}
+  </update>
+
+  <!-- List<Activity> selectAllActivity(); -->
+  <select id="selectAllActivity" resultMap="BaseResultMap">
+    select a.id,u1.name as owner,a.name, a.start_date,a.end_date,a.cost,a.description,a.create_time,
+           u2.name as create_by,a.edit_time,u3.name as edit_by
+    from tbl_activity a
+           join tbl_user u1 on a.owner=u1.id
+           join tbl_user u2 on a.create_by=u2.id
+           left join tbl_user u3 on a.edit_by=u3.id
+    order by a.create_time desc
+  </select>
+
+  <!-- List<Activity> selectActivityByIds(String[] ids); -->
+  <select id="selectActivityByIds" resultMap="BaseResultMap" parameterType="string">
+    select a.id,u1.name as owner,a.name, a.start_date,a.end_date,a.cost,a.description,a.create_time,
+           u2.name as create_by,a.edit_time,u3.name as edit_by
+    from tbl_activity a
+           join tbl_user u1 on a.owner=u1.id
+           join tbl_user u2 on a.create_by=u2.id
+           left join tbl_user u3 on a.edit_by=u3.id
+    where a.id
+    <foreach collection="array" item="id" separator="," open="in (" close=")">
+      #{id}
+    </foreach>
+    order by a.create_time desc
+  </select>
 </mapper>

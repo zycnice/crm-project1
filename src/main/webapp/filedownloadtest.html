@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="static/jquery/jquery-1.11.1-min.js"></script>
+    <title>演示文件下载</title>
+    <script type="text/javascript">
+        $(function (){
+            //给”下载“按钮添加单击事件
+            $("#fileDownloadBtn").click(function (){
+                //所有文件下载的请求只能发同步
+                //发同步请求有三种方法：地址栏，超链接，from表单
+                window.location.href="workbench/activity/fileDownload.do";
+            });
+
+        });
+    </script>
+</head>
+<body>
+<input type="button" value="下载" id="fileDownloadBtn">
+</body>
+</html>

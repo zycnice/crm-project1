@@ -142,7 +142,7 @@
             <scope>compile</scope>
         </dependency>
 
-        <!--poi依赖-->
+        <!--poi依赖 生成各种类型的文件如excel-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
