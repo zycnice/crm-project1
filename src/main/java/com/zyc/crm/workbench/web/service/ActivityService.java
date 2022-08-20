@@ -67,4 +67,18 @@ public interface ActivityService {
      * @return
      */
     List<Activity> queryActivityByIds(String[] ids);
+
+    /**
+     * 批量保存创建的市场活动
+     * @param activityList
+     * @return
+     */
+    int saveCreateActivityByList(List<Activity> activityList);
+
+    /**
+     * 根据id查询市场的活动信息
+     * @param id
+     * @return
+     */
+    Activity queryActivityForDetailById(String id);
 }

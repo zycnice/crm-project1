@@ -52,7 +52,7 @@
     <mvc:view-controller path="/" view-name="index"></mvc:view-controller>
 
     <!-- 文件上传解析器   -->
-    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+<!--    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>-->
 
     <!-- 拦截器   -->
     <mvc:interceptors>
@@ -70,6 +70,13 @@
         </mvc:interceptor>
     </mvc:interceptors>
     <!-- 异常处理器   -->
+
+    <!--  文件上传-->
+    <!--必须通过文件解析器的解析才能将文件转换为MultipartFile对象-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="#{1024*1024*80}"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
 
 
 </beans>

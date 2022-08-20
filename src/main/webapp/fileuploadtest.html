@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="static/jquery/jquery-1.11.1-min.js"></script>
+    <title>演示文件上传</title>
+</head>
+<body>
+<!--
+    文件上传的表单三个条件
+    1.表单组件标签只能用：<input type="text|password|radio|checkbox|hidden
+                        |button|submit|reset|file">
+     2.请求方式只能用：post
+           get:参数通过请求头提交到后台，参数放在URL后边，只能向后台提交文本数据，对参数长度有限制，数据不安全，效率高
+           post:参数通过请求体提交到后台，既能提交文件数据，又能够提交二进制数据；理论上对参数长度没有限制，相对安全，效率相对较低
+
+     3.表单的编码格式只能用：multipart/form-data
+           HTTP协议的规定，浏览器每次向后台提交参数，都会对参数进行统一编码；默认采用的编码格式是urlencoded
+           这种编码格式只能对文本数据进行编码，浏览器每次向后台提交参数，都会首先把所有的参数转换成字符串，然后
+           对这些数据统一进行urlencoded编码：
+           文件上传的表单编码格式只能用：multipart/form-data;enctype="multipart/form-data"设置文件编码格式
+-->
+<form th:action="@{workbench/activity/fileUpload.do}" method="post" enctype="multipart/form-data">
+    <input type="file" name="myFile">
+    <input type="text" name="username">
+    <input type="submit" value="提交">
+</form>
+</body>
+</html>
