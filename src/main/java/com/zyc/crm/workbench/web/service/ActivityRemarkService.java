@@ -17,4 +17,26 @@ public interface ActivityRemarkService {
      * @return
      */
     List<ActivityRemark> queryActivityRemarkForDetailByActivityId(String activityId);
+
+
+    /**
+     * 保存创建的市场活动备注
+     * @param remark
+     * @return
+     */
+    int saveCreateActivityRemark(ActivityRemark remark);
+
+    /**
+     * 根据id删除市场活动备注
+     * @param id
+     * @return
+     */
+    int deleteActivityRemarkById(String id);
+
+    /**
+     * 保存修改的市场活动备注
+     * @param remark
+     * @return
+     */
+    int saveEditActivityRemark(ActivityRemark remark);
 }

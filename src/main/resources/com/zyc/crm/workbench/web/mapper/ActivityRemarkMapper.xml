@@ -181,4 +181,24 @@
     where ar.activity_id = #{activityId}
     order by ar.create_time asc
   </select>
+
+<!--  int insertActivityRemark(ActivityRemark remark); -->
+  <insert id="insertActivityRemark" parameterType="ActivityRemark">
+    insert tbl_activity_remark(id, note_content, create_time, create_by,edit_flag, activity_id)
+    values (#{id},#{noteContent},#{createTime},#{createBy},#{editFlag},#{activityId})
+  </insert>
+
+<!--  int deleteActivityRemarkById(String id);-->
+  <delete id="deleteActivityRemarkById" parameterType="string">
+    delete from tbl_activity_remark where id = #{id}
+  </delete>
+
+<!--   int updateActivityRemark(ActivityRemark remark); -->
+  <update id="updateActivityRemark" parameterType="ActivityRemark">
+    update tbl_activity_remark set note_content = #{noteContent},
+                                   edit_time = #{editTime},
+                                   edit_by = #{editBy},
+                                   edit_flag = #{editFlag}
+    where id = #{id}
+  </update>
 </mapper>

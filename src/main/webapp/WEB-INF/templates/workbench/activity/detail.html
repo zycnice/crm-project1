@@ -35,24 +35,182 @@
 			$("#remarkDiv").css("height","90px");
 			cancelAndSaveBtnDefault = true;
 		});
-		
-		$(".remarkDiv").mouseover(function(){
+
+		//这里都是静态添加修改和删除的标签，新创建的备注不会显示，现在改成动态的
+		// $(".remarkDiv").mouseover(function(){
+		// 	$(this).children("div").children("div").show();
+		// });
+
+		//通过on的设置动态
+		$("#remarkDivList").on("mouseover",".remarkDiv",function (){
 			$(this).children("div").children("div").show();
-		});
-		
-		$(".remarkDiv").mouseout(function(){
+		})
+
+		// $(".remarkDiv").mouseout(function(){
+		// 	$(this).children("div").children("div").hide();
+		// });
+
+		$("#remarkDivList").on("mouseout",".remarkDiv",function (){
 			$(this).children("div").children("div").hide();
-		});
+		})
 		
-		$(".myHref").mouseover(function(){
+		// $(".myHref").mouseover(function(){
+		// 	$(this).children("span").css("color","red");
+		// });
+
+		$("#remarkDivList").on("mouseover",".myHref",function (){
 			$(this).children("span").css("color","red");
-		});
+		})
 		
-		$(".myHref").mouseout(function(){
+		// $(".myHref").mouseout(function(){
+		// 	$(this).children("span").css("color","#E6E6E6");
+		// });
+		$("#remarkDivList").on("mouseout",".myHref",function (){
 			$(this).children("span").css("color","#E6E6E6");
+		})
+
+		//给”保存“按钮添加单击事件
+		$("#saveCreateActivityRemarkBtn").click(function (){
+			//收集参数
+			var noteContent = $.trim($("#remark").val());
+			//注意使用thymeleaf时，和jsp的区别，不在标签属性中时要加 双重中括号  ※在注释和代码中不要随意出现 双重中括号 的，不然解析会出错
+			var activityId = '[[${activity.id}]]';
+			//表单验证
+			if(noteContent==""){
+				alert("备注内容不能为空");
+				return;
+			}
+			//发送请求
+			$.ajax({
+				url:'saveCreateActivityRemark.do',
+				data:{
+					noteContent:noteContent,
+					activityId:activityId
+				},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					if(data.code=="1"){
+						//清空输入框
+						$("#remark").val("");
+						var htmlStr="";
+						htmlStr+="<div class=\"remarkDiv\" id=\"div_"+data.retData.id+"\" style=\"height: 60px;\">";
+						htmlStr+="	<img th:title=\"${session.sessionUser.name}\" src=\"image/user-thumbnail.png\"";
+						htmlStr+="		 style=\"width: 30px; height:30px;\">";
+						htmlStr+="		<div style=\"position: relative; top: -40px; left: 40px;\">";
+						htmlStr+="			<h5>"+noteContent+"</h5>";
+						htmlStr+="			<font color=\"gray\">市场活动</font> <font color=\"gray\">-</font>";
+						htmlStr+="			<b>[[${activity.name}]]</b> <small style=\"color: gray;\"> "+data.retData.createTime;
+						htmlStr+="			由[[${session.sessionUser.name}]]创建</small>";
+						htmlStr+="			<div style=\"position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;\">";
+						htmlStr+="				<a class=\"myHref\" name=\"editA\" remarkId=\""+data.retData.id+"\" href=\"javascript:void(0);\"><span";
+						htmlStr+="						class=\"glyphicon glyphicon-edit\"";
+						htmlStr+="						style=\"font-size: 20px; color: #E6E6E6;\"></span></a>";
+						htmlStr+="				&nbsp;&nbsp;&nbsp;&nbsp;";
+						htmlStr+="				<a class=\"myHref\" name=\"deleteA\" remarkId=\""+data.retData.id+"\" href=\"javascript:void(0);\"><span";
+						htmlStr+="						class=\"glyphicon glyphicon-remove\"";
+						htmlStr+="						style=\"font-size: 20px; color: #E6E6E6;\"></span></a>";
+						htmlStr+="			</div>";
+						htmlStr+="		</div>";
+						htmlStr+="</div>";
+						//追加到div的上面,这里最难的是拼接好的字符串放到页面那里去
+						//选择器.text(htmlStr):覆盖显示在标签的内部
+						//选择器.html(htmlStr):覆盖显示在标签的内部
+						//选择器.after(htmlStr):追加显示在指定标签的后边
+						//选择器.append(htmlStr):追加显示在指定标签的内部的后边
+						//选择器.before(htmlStr):追加显示在指定标签的外部的前边
+						$("#remarkDiv").before(htmlStr);
+					}else {
+						//提示详细
+						alert(data.mesage);
+					}
+				}
+			});
 		});
+
+		//给所有的”删除“图标添加单价事件
+		//因为是动态的，拿到父元素的div框调用on
+		$("#remarkDivList").on("click","a[name = 'deleteA']",function (){
+			//收集参数
+			//获取自定义属性只能用attr
+			var id = $(this).attr("remarkId");
+			//发送请求
+			$.ajax({
+				url:'deleteActivityRemarkById.do',
+				data:{
+					id:id
+				},
+				type: 'post',
+				dataType: 'json',
+				success:function (data){
+					if(data.code == "1"){
+						//刷新动态列表,动态的删除对应的div
+						$("#div_"+id).remove();
+					}else {
+						//提示信息
+						alert(data.message);
+					}
+				}
+			});
+		});
+
+		//给”所有“的市场活动修改图标添加单击事件
+		$("#remarkDivList").on("click","a[name = 'editA']",function (){
+			//收集参数
+			//获取id的备注内容
+			//获取自定义属性只能用attr
+			var id = $(this).attr("remarkId");
+			//备注内容
+			var noteContent = $("#div_"+id+" h5").text();
+			//把内容写到隐藏域
+			$("#edit-id").val(id);
+			$("#edit-describe").val(noteContent);
+			//弹出修改市场活动的备注模态窗口
+			$("#editRemarkModal").modal("show");
+
+		});
+
+		//给”更新按钮添加单击事件“
+		$("#updateRemarkBtn").click(function (){
+			//收集参数
+			var id = $("#edit-id").val();
+			var noteContent = $.trim($("#edit-describe").val());
+			//表单验证
+			if(noteContent==""){
+				alret("备注类容不能为空");
+				return;
+			}
+
+			//发送请求
+			$.ajax({
+				url:'saveEditActivityRemark.do',
+				data:{
+					id:id,
+					noteContent:noteContent
+				},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					if(data.code == "1"){
+						//关闭模态窗口
+						$("#editRemarkModal").modal("hide");
+						//刷新备注列表
+						$("#div_"+id+" h5").text(noteContent);
+						//修改时间和修改人都是一块的，一块得一起更新不然会覆盖
+						$("#div_"+id+" small").text(data.retData.editTime + "由[[${session.sessionUser.name}]]修改");
+					}else {
+						//提示信息
+						alert(data.message);
+						//模态窗口不关闭
+						$("#editRemarkModal").modal("show");
+					}
+				}
+			});
+		});
+
+
 	});
-	
+
 </script>
 
 </head>
@@ -72,6 +230,7 @@
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" role="form">
+						<input type="hidden" id="edit-id">
                         <div class="form-group">
                             <label for="edit-describe" class="col-sm-2 control-label">内容</label>
                             <div class="col-sm-10" style="width: 81%;">
@@ -151,27 +310,26 @@
 			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 	</div>
-	
+
 	<!-- 备注 -->
-	<div style="position: relative; top: 30px; left: 40px;">
+	<div id="remarkDivList" style="position: relative; top: 30px; left: 40px;">
 		<div class="page-header">
 			<h4>备注</h4>
 		</div>
-		
-		<!-- 备注 -->
-		<div class="remarkDiv" style="height: 60px;" th:id="|div_${remark.id}|" th:each="remark : ${activityRemarksList}">
-			<img th:title="${remark.createBy}" src="../../image/user-thumbnail.png" style="width: 30px; height:30px;">
+
+		<!-- 遍历remarkList，显示所有的备注 -->
+		<div class="remarkDiv" th:id="|div_${remark.id}|" style="height: 60px;"  th:each=" remark: ${activityRemarksList}">
+			<img th:title="${remark.createBy}" src="image/user-thumbnail.png" style="width: 30px; height:30px;">
 			<div style="position: relative; top: -40px; left: 40px;" >
 				<h5>[[${remark.noteContent}]]</h5>
 				<font color="gray">市场活动</font> <font color="gray">-</font> <b>[[${activity.name}]]</b> <small style="color: gray;"> [[${remark.editFlag=='1'?remark.editTime:remark.createTime}]] 由[[${remark.editFlag=='1'?remark.editBy:remark.createBy}]][[${remark.editFlag=='1'?'修改':'创建'}]]</small>
 				<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">
-					<a class="myHref" th:remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>
+					<a class="myHref" name="editA" th:remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>
 					&nbsp;&nbsp;&nbsp;&nbsp;
-					<a class="myHref" th:remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>
+					<a class="myHref" name="deleteA" th:remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>
 				</div>
 			</div>
 		</div>
-
 
 		<div id="remarkDiv" style="background-color: #E6E6E6; width: 870px; height: 90px;">
 			<form role="form" style="position: relative;top: 10px; left: 10px;">
